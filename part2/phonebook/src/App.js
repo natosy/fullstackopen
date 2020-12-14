@@ -23,6 +23,14 @@ const App = () => {
 
     const handleSearch = (event) => setSearch(event.target.value)
 
+    const notify = (msg, success) => {
+        setIsSuccess(success)
+        setMessage(msg)
+        setTimeout(() => {
+            setMessage(null)
+        }, 5000)
+    }
+
     const searchedPersons =
         search === ''
             ? persons
@@ -34,13 +42,8 @@ const App = () => {
                 .deletePerson(id)
                 .then(setPersons(persons.filter(person => person.id !== id)))
                 .catch(error => {
-                    setIsSuccess(false)
-                    setMessage(
-                        `Information of ${person} has already been removed from server`
-                    )
-                    setTimeout(() => {
-                        setMessage(null)
-                    }, 5000)
+                    const msg = `Information of ${person} has already been removed from server`
+                    notify(msg, false)
                 })
         }
     }
@@ -56,13 +59,8 @@ const App = () => {
                             : person))
             })
             .catch(error => {
-                setIsSuccess(false)
-                setMessage(
-                    `Information of ${newPerson.name} has already been removed from server`
-                )
-                setTimeout(() => {
-                    setMessage(null)
-                }, 5000)
+                const msg = `Information of ${newPerson.name} has already been removed from server`
+                notify(msg, false)
             })
     }
 
@@ -71,18 +69,11 @@ const App = () => {
             .addPerson(newPerson)
             .then(newPerson => {
                 setPersons(persons.concat(newPerson))
-                return newPerson
+                notify(`Added ${newPerson.name}`, true)
             })
-            .then((newPerson) => {
-                setIsSuccess(true)
-                setMessage(`Added ${newPerson.name}`)
-                setTimeout(() => {
-                    setMessage(null)
-                }, 5000)
+            .catch(error => {
+                notify(error.response.data.error, false)
             })
-
-
-
     }
 
     return (
